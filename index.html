@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description"
+    content="Crypto ROI Calc helps traders calculate risk, reward, and trade sizes with an easy-to-use crypto trading calculator." />
+  <meta name="keywords"
+    content="crypto calculator, trading calculator, risk management, crypto trading, Bitcoin, Ethereum, profit calculator, stop loss, take profit" />
+
+  <meta property="og:title" content="Crypto ROI Calc - Crypto Trading Calculator" />
+  <meta property="og:description"
+    content="Easily calculate your crypto trades, risk, and profit potential with CryptoROI Calc. The best free trading calculator for smart traders!" />
+  <meta property="og:image" content="https://cryptoroicalc.com/img/cryptoroicalc-1200-630.png" />
+  <meta property="og:url" content="https://cryptoroicalc.com" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CryptoROI Calc - Smart Crypto Trading Calculator" />
+  <meta name="twitter:description"
+    content="Instantly calculate your trade size, risk, and profit targets with CryptoROI Calc. The must-have tool for every crypto trader!" />
+  <meta name="twitter:image" content="https://cryptoroicalc.com/img/cryptoroicalc-1200-675.png" />
+
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+  <title>Crypto Risk Calculator</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body data-theme="dark">
+  <nav class="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+            <path
+              d="M11.767 19.089c4.924.868 6.14-6.025 1.216-6.894m-1.216 6.894L5.86 18.047m5.908 1.042-.347 1.97m1.563-8.864c4.924.869 6.14-6.025 1.215-6.893m-1.215 6.893-3.94-.694m5.155-6.2L8.29 4.26m5.908 1.042.348-1.97M7.48 20.364l3.126-17.727" />
+          </svg>
+          <span class="logo-text">Crypto Risk Calculator</span>
+        </div>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sun-icon">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon-icon">
+            <path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="header">
+      <h1>Trade Risk Calculator</h1>
+      <p>Calculate the optimal position size based on your portfolio<br> and risk tolerance to ensure disciplined
+        trading.</p>
+    </div>
+
+    <div class="calculator-grid">
+      <div class="calculator-form">
+        <form id="calculatorForm">
+          <div class="form-group">
+            <label for="portfolioSize">Portfolio Size ($)</label>
+            <div class="input-wrapper">
+              <input type="number" id="portfolioSize" required min="0" step="any" placeholder="e.g. 10,000">
+              <div class="info-tooltip" data-tooltip="Your total trading capital">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="riskPercent">Entry Risk Percent (%)</label>
+            <div class="input-wrapper">
+              <input type="number" id="riskPercent" required min="0.01" max="100" step="0.01" placeholder="e.g. 1">
+              <div class="info-tooltip" data-tooltip="Percentage of your portfolio to risk on initial entry">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dcaRiskPercent">DCA Risk Percent (%)</label>
+            <div class="input-wrapper">
+              <input type="number" id="dcaRiskPercent" min="0.01" max="100" step="0.01" placeholder="e.g. 1">
+              <div class="info-tooltip" data-tooltip="Percentage of your portfolio to risk on DCA entries">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M12 16v-4"></path>
+                  <path d="M12 8h.01"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="entryPrice">Entry Price ($)</label>
+            <input type="number" id="entryPrice" required min="0.00000001" step="any" placeholder="e.g. 2.34">
+          </div>
+
+          <div class="form-group">
+            <label>DCA Entries ($)</label>
+            <div id="dcaEntriesList">
+              <div class="dca-entry">
+                <input type="number" class="dca-price" min="0.00000001" step="any" placeholder="DCA Price">
+                <button type="button" class="remove-dca">×</button>
+              </div>
+            </div>
+            <button type="button" id="addDCA" class="add-button">+ Add DCA Level</button>
+          </div>
+
+          <div class="form-group">
+            <label for="stopPrice">Stop Loss Price ($)</label>
+            <input type="number" id="stopPrice" required min="0.00000001" step="any" placeholder="e.g. 1.98">
+          </div>
+
+          <div class="form-group">
+            <label>Take Profit Targets ($)</label>
+            <div id="takeProfitList">
+              <div class="tp-entry">
+                <input type="number" class="tp-price" min="0.00000001" step="any" placeholder="Target Price">
+                <button type="button" class="remove-tp">×</button>
+              </div>
+            </div>
+            <button type="button" id="addTP" class="add-button">+ Add Target</button>
+          </div>
+
+          <button type="submit" class="calculate-button">Calculate</button>
+        </form>
+      </div>
+
+      <div class="results" id="results">
+        <div class="results-placeholder">
+          Input your trade parameters <br> and click Calculate to see results
+        </div>
+        <div class="chart-container" style="display: none;">
+          <canvas id="priceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <p>© 2025 jsherm</p>
+        <div class="donate">
+          <span>Donate SOL:</span>
+          <div class="address-wrapper">
+            <span class="address" id="solAddress">HUFh4ddmzcYYKh34Sunb7iNuYhkR9bojAQFreSPgamo5</span>
+            <button class="copy-button" id="copyAddress" aria-label="Copy Solana address">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="check-icon">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
