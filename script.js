@@ -16,90 +16,6 @@ themeToggle.addEventListener('click', () => {
 const calculatorForm = document.getElementById('calculatorForm');
 const resultsDiv = document.getElementById('results');
 
-// Chart initialization
-let priceChart = null;
-
-function initializeChart() {
-  const ctx = document.getElementById('priceChart').getContext('2d');
-  priceChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Price',
-        data: [],
-        borderColor: 'rgb(59, 130, 246)',
-        tension: 0.1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Trade Setup Visualization'
-        },
-        tooltip: {
-          mode: 'index',
-          intersect: false
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: false
-        }
-      }
-    }
-  });
-}
-
-function updateChart(entryPrice, dcaPrices, takeProfitPrices, stopPrice) {
-  if (!priceChart) {
-    initializeChart();
-  }
-
-  // Sort all price points
-  const allPrices = [entryPrice, ...dcaPrices, ...takeProfitPrices, stopPrice].sort((a, b) => a - b);
-
-  // Create labels and data points
-  const labels = allPrices.map((price, index) => `Point ${index + 1}`);
-  const data = allPrices;
-
-  // Update chart data
-  priceChart.data.labels = labels;
-  priceChart.data.datasets[0].data = data;
-
-  // Add annotations for different price levels
-  priceChart.options.plugins.annotation = {
-    annotations: {
-      entry: {
-        type: 'line',
-        yMin: entryPrice,
-        yMax: entryPrice,
-        borderColor: 'rgb(16, 185, 129)',
-        borderWidth: 2,
-        label: {
-          content: 'Entry',
-          enabled: true
-        }
-      },
-      stop: {
-        type: 'line',
-        yMin: stopPrice,
-        yMax: stopPrice,
-        borderColor: 'rgb(239, 68, 68)',
-        borderWidth: 2,
-        label: {
-          content: 'Stop Loss',
-          enabled: true
-        }
-      }
-    }
-  };
-
-  priceChart.update();
-}
-
 function calculateTradeSize(portfolioSize, riskPercent, entryPrice, stopPrice) {
   const riskAmount = (portfolioSize * riskPercent) / 100;
   const percentChange = Math.abs((stopPrice - entryPrice) / entryPrice);
@@ -125,69 +41,68 @@ function formatCurrency(value, decimals = 4) {
 
 calculatorForm.addEventListener('submit', (e) => {
   e.preventDefault();
-
+  
   const portfolioSize = parseFloat(document.getElementById('portfolioSize').value);
   const entryRiskPercent = parseFloat(document.getElementById('riskPercent').value);
-  const dcaRiskPercent = parseFloat(document.getElementById('dcaRiskPercent').value);
+  const dcaRiskPercent = document.getElementById('dcaRiskPercent').value ? parseFloat(document.getElementById('dcaRiskPercent').value) : 0;
   const entryPrice = parseFloat(document.getElementById('entryPrice').value);
   const stopPrice = parseFloat(document.getElementById('stopPrice').value);
-
-  // Calculate total risk amount (1% of portfolio)
-  const totalRiskAmount = (portfolioSize * (entryRiskPercent + dcaRiskPercent)) / 100;
-
-  // Get DCA prices
+  
+  // Get DCA prices (filter out empty inputs)
   const dcaPrices = Array.from(document.querySelectorAll('.dca-price'))
-    .map(input => parseFloat(input.value))
-    .filter(price => !isNaN(price));
-
-  // Calculate position sizes based on proportional risk
-  const totalPositions = 1 + dcaPrices.length; // Entry + DCA positions
-  const riskPerPosition = totalRiskAmount / totalPositions;
-
+    .map(input => input.value ? parseFloat(input.value) : null)
+    .filter(price => price !== null && !isNaN(price));
+  
+  // Calculate position sizes
   let positions = [];
   let totalCoins = 0;
   let totalAmount = 0;
-
+  
   // Calculate main entry position
-  const mainTradeAmount = calculateTradeSize(portfolioSize, riskPerPosition / portfolioSize * 100, entryPrice, stopPrice);
+  const mainTradeAmount = calculateTradeSize(portfolioSize, entryRiskPercent, entryPrice, stopPrice);
   const mainCoinAmount = mainTradeAmount / entryPrice;
-
+  
   positions.push({
     type: 'Entry',
     price: entryPrice,
     amount: mainTradeAmount,
     coins: mainCoinAmount
   });
-
+  
   totalCoins += mainCoinAmount;
   totalAmount += mainTradeAmount;
-
-  // Calculate DCA positions
-  for (const dcaPrice of dcaPrices) {
-    const dcaTradeAmount = calculateTradeSize(portfolioSize, riskPerPosition / portfolioSize * 100, dcaPrice, stopPrice);
-    const dcaCoinAmount = dcaTradeAmount / dcaPrice;
-
-    positions.push({
-      type: 'DCA',
-      price: dcaPrice,
-      amount: dcaTradeAmount,
-      coins: dcaCoinAmount
-    });
-
-    totalCoins += dcaCoinAmount;
-    totalAmount += dcaTradeAmount;
+  
+  // Calculate DCA positions if DCA risk percent is provided
+  if (dcaRiskPercent > 0 && dcaPrices.length > 0) {
+    const riskPerDCA = dcaRiskPercent / dcaPrices.length;
+    
+    for (const dcaPrice of dcaPrices) {
+      const dcaTradeAmount = calculateTradeSize(portfolioSize, riskPerDCA, dcaPrice, stopPrice);
+      const dcaCoinAmount = dcaTradeAmount / dcaPrice;
+      
+      positions.push({
+        type: 'DCA',
+        price: dcaPrice,
+        amount: dcaTradeAmount,
+        coins: dcaCoinAmount
+      });
+      
+      totalCoins += dcaCoinAmount;
+      totalAmount += dcaTradeAmount;
+    }
   }
-
-  // Get take profit targets
+  
+  // Get take profit targets (filter out empty inputs)
   const takeProfitPrices = Array.from(document.querySelectorAll('.tp-price'))
-    .map(input => parseFloat(input.value))
-    .filter(price => !isNaN(price))
+    .map(input => input.value ? parseFloat(input.value) : null)
+    .filter(price => price !== null && !isNaN(price))
     .sort((a, b) => a - b);
-
+  
   // Calculate total potential profit from all TPs
   let totalPotentialProfit = 0;
   let highestRiskRewardRatio = 0;
-
+  const totalRiskAmount = (portfolioSize * (entryRiskPercent + dcaRiskPercent)) / 100;
+  
   if (takeProfitPrices.length > 0) {
     takeProfitPrices.forEach(tp => {
       const profit = calculatePotentialProfit(totalCoins, entryPrice, tp);
@@ -196,13 +111,7 @@ calculatorForm.addEventListener('submit', (e) => {
       if (rr > highestRiskRewardRatio) highestRiskRewardRatio = rr;
     });
   }
-
-  // Show chart container
-  document.querySelector('.chart-container').style.display = 'block';
-
-  // Update chart with new data
-  updateChart(entryPrice, dcaPrices, takeProfitPrices, stopPrice);
-
+  
   // Generate results HTML
   let resultsHTML = `
     <div class="space-y-6">
@@ -223,17 +132,17 @@ calculatorForm.addEventListener('submit', (e) => {
         <div class="result-section">
           <h3 class="text-lg font-semibold text-slate-300 mb-3">Take Profit Targets</h3>
           ${takeProfitPrices.map((tp, index) => {
-    const profit = calculatePotentialProfit(totalCoins, entryPrice, tp);
-    const riskRewardRatio = Math.abs(profit / totalRiskAmount);
-
-    return `
+            const profit = calculatePotentialProfit(totalCoins, entryPrice, tp);
+            const riskRewardRatio = Math.abs(profit / totalRiskAmount);
+            
+            return `
               <div class="mb-6">
                 <div class="text-yellow-400">TP ${index + 1} @ ${formatCurrency(tp)}</div>
                 <div class="text-green-400">Profit: ${formatCurrency(profit, 0)}</div>
                 <div class="text-purple-400">R/R: 1:${riskRewardRatio.toFixed(2)}</div>
               </div>
             `;
-  }).join('')}
+          }).join('')}
         </div>
       ` : ''}
       
@@ -263,7 +172,7 @@ calculatorForm.addEventListener('submit', (e) => {
       ` : ''}
     </div>
   `;
-
+  
   resultsDiv.innerHTML = resultsHTML;
 });
 
@@ -271,20 +180,20 @@ calculatorForm.addEventListener('submit', (e) => {
 function copyTradeDetails() {
   const positions = Array.from(document.querySelectorAll('.result-section'));
   let details = '';
-
+  
   positions.forEach(section => {
     const title = section.querySelector('h3').textContent;
     details += `${title}\n\n`;
-
+    
     const entries = Array.from(section.querySelectorAll('.mb-6'));
     entries.forEach(entry => {
       const lines = Array.from(entry.children).map(div => div.textContent);
       details += lines.join('\n') + '\n\n';
     });
   });
-
+  
   navigator.clipboard.writeText(details.trim());
-
+  
   const copyButton = document.querySelector('.copy-button');
   copyButton.classList.add('copied');
   setTimeout(() => copyButton.classList.remove('copied'), 2000);
@@ -303,11 +212,11 @@ function createDCAEntry() {
     <input type="number" class="dca-price" min="0.00000001" step="any" placeholder="DCA Price">
     <button type="button" class="remove-dca">×</button>
   `;
-
+  
   div.querySelector('.remove-dca').addEventListener('click', () => {
     div.remove();
   });
-
+  
   return div;
 }
 
@@ -318,11 +227,11 @@ function createTPEntry() {
     <input type="number" class="tp-price" min="0.00000001" step="any" placeholder="Target Price">
     <button type="button" class="remove-tp">×</button>
   `;
-
+  
   div.querySelector('.remove-tp').addEventListener('click', () => {
     div.remove();
   });
-
+  
   return div;
 }
 
